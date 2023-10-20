@@ -34,6 +34,9 @@ public class Listeners implements Listener {
                         ));
             }, 40);
         }
+
+        plugin.getRewardsPoolsManager().handlePlayerJoin(e.getPlayer());
+
         if(!plugin.getAConfig().getBoolean("update-stats")) return;
         if(!plugin.getAConfig().getBoolean("update-on-join")) return;
         plugin.getScheduler().runTaskAsynchronously(() -> plugin.getCache().updatePlayerStats(e.getPlayer()));

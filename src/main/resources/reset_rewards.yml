@@ -1,0 +1,11 @@
+# Reset with rewards configurations
+topexp-hourly:
+  board: player_total_exp
+  type: hourly
+  rewards:
+    "1":
+    - "minecraft:give %player_name% diamond{display:{Name:'{\"text\": \"\", \"italic\": false, \"extra\": [{\"text\":\"Special Diamond \", \"color\": \"aqua\"}, \"- \", {\"text\": \"#1 Trophy\", \"color\": \"gold\"}]}'}} 1"
+    "2":
+    - "minecraft:give %player_name% diamond{display:{Name:'{\"text\": \"\", \"italic\": false, \"extra\": [{\"text\":\"Special Diamond \", \"color\": \"aqua\"}, \"- \", {\"text\": \"#2 Trophy\", \"color\": \"gold\"}]}'}} 1"
+    "3":
+    - "minecraft:give %player_name% diamond{display:{Name:'{\"text\": \"\", \"italic\": false, \"extra\": [{\"text\":\"Special Diamond \", \"color\": \"aqua\"}, \"- \", {\"text\": \"#3 Trophy\", \"color\": \"gold\"}]}'}} 1"

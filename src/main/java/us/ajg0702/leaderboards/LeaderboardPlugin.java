@@ -11,6 +11,7 @@ import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -37,6 +38,7 @@ import us.ajg0702.leaderboards.formatting.PlaceholderFormatter;
 import us.ajg0702.leaderboards.loaders.MessageLoader;
 import us.ajg0702.leaderboards.nms.legacy.HeadUtils;
 import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
+import us.ajg0702.leaderboards.rewards.RewardsPoolsManager;
 import us.ajg0702.leaderboards.utils.*;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
@@ -70,6 +72,7 @@ public class LeaderboardPlugin extends JavaPlugin {
     private HeadManager headManager;
     private HeadUtils headUtils;
     private ArmorStandManager armorStandManager;
+    private RewardsPoolsManager rewardsPoolsManager;
     private LuckpermsContextLoader contextLoader;
     private ResetSaver resetSaver;
     private final Exporter exporter = new Exporter(this);
@@ -170,6 +173,11 @@ public class LeaderboardPlugin extends JavaPlugin {
         headUtils = new HeadUtils(getLogger());
         armorStandManager = new ArmorStandManager(this);
 
+        // @nahkd123 - Quick and dirty config thing here
+        // TODO figure out how this plugin do the configurations
+        if (!new File(getDataFolder(), "reset_rewards.yml").exists()) saveResource("reset_rewards.yml", true);
+        rewardsPoolsManager = new RewardsPoolsManager(this, YamlConfiguration.loadConfiguration(new File(getDataFolder(), "reset_rewards.yml")));
+
         resetSaver = new ResetSaver(this);
 
         cache = new Cache(this);
@@ -254,6 +262,12 @@ public class LeaderboardPlugin extends JavaPlugin {
                 Debug.info(" - "+stackTraceElement);
             }
         });
+
+        rewardsPoolsManager.getQueue().save();
+    }
+
+    public RewardsPoolsManager getRewardsPoolsManager() {
+        return rewardsPoolsManager;
     }
 
     private void killWorkers(int waitForDeath) {
@@ -411,6 +425,7 @@ public class LeaderboardPlugin extends JavaPlugin {
             getScheduler().runTaskAsynchronously(() -> {
                 try {
                     for (String board : resetNow) {
+                        rewardsPoolsManager.handleBoardReset(board, type);
                         cache.reset(board, type);
                     }
                 } catch (ExecutionException | InterruptedException e) {
@@ -436,6 +451,7 @@ public class LeaderboardPlugin extends JavaPlugin {
                 () -> {
                     try {
                         for (String board : getTopManager().getBoards()) {
+                            rewardsPoolsManager.handleBoardReset(board, type);
                             cache.reset(board, type);
                         }
                     } catch (ExecutionException | InterruptedException e) {
