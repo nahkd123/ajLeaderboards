@@ -66,9 +66,9 @@ public class RewardsPool {
 
             if (player == null || !player.isOnline()) {
                 poolsManager.getPlugin().getLogger().info(String.format("  Player with UUID = %s is not online; rewards for rank #%s will be given when they went online", entry.getPlayerID(), rank + 1));
-                poolsManager.getQueue().enqueue(entry.getPlayerID(), this, rank);
+                poolsManager.getQueue().enqueueSync(entry.getPlayerID(), this, rank);
             } else {
-                poolsManager.giveRewards(player, rankRewards);
+                poolsManager.giveRewardsSync(player, rankRewards);
             }
         }
     }

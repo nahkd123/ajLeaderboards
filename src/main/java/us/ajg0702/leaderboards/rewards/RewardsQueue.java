@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 
@@ -42,6 +44,16 @@ public class RewardsQueue {
         if (configRoot.contains(uuid.toString())) pendingPoolNames.addAll(configRoot.getStringList(uuid.toString()));
         pendingPoolNames.add(pack(pool.getId(), rank));
         configRoot.set(uuid.toString(), pendingPoolNames);
+    }
+
+    public void enqueueSync(UUID uuid, RewardsPool pool, int rank) {
+        if (Bukkit.isPrimaryThread()) enqueue(uuid, pool, rank);
+        else new BukkitRunnable() {
+            @Override
+            public void run() {
+                enqueue(uuid, pool, rank);
+            }
+        }.runTask(poolsManager.getPlugin());
     }
 
     public List<String> popAllRewards(Player player) {

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -58,14 +59,8 @@ public class RewardsPoolsManager {
     public void handleBoardReset(String boardName, TimedType timedType) {
         for (RewardsPool pool : pools.values()) {
             if (pool.matches(boardName, timedType)) {
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        // We want to keep our rewards thing in sync with main thread
-                        plugin.getLogger().info(String.format("Giving rewards in %s pool...", pool.getId()));
-                        pool.handleRewards();
-                    }
-                }.runTask(plugin);
+                plugin.getLogger().info(String.format("Giving rewards in %s pool...", pool.getId()));
+                pool.handleRewards();
             }
         }
     }
@@ -89,5 +84,15 @@ public class RewardsPoolsManager {
                 plugin.getLogger().warning(String.format("      Failed to execute command: %s", processed));
             }
         }
+    }
+
+    protected void giveRewardsSync(Player player, List<String> commands) {
+        if (Bukkit.isPrimaryThread()) giveRewards(player, commands);
+        else new BukkitRunnable() {
+            @Override
+            public void run() {
+                giveRewards(player, commands);
+            }
+        }.runTask(plugin);
     }
 }
